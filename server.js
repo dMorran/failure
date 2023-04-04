@@ -5,31 +5,21 @@ import {
 } from "@grpc/grpc-js";
 import { loadSync } from "@grpc/proto-loader";
 
-// Import Firebase libraries
-import { initializeApp } from "firebase/app";
-import {
-  getFirestore,
-  collection,
-  doc,
-  updateDoc,
-  setDoc,
-  getDoc,
-  deleteDoc,
-} from "firebase/firestore/lite";
+// Import Firebase Admin libraries
+import admin from "firebase-admin";
+import serviceAccount from "./serviceAccountKey.json" assert { type: "json" };
 
-// Initialize Firebase app
+// Initialize Firebase app with service account config
 const firebaseConfig = {
-  apiKey: "AIzaSyDV3OVZ_JzdxSrG6rfjzaFufO6dEeoCjUY",
-  authDomain: "grpcproto-f09a8.firebaseapp.com",
-  projectId: "grpcproto-f09a8",
-  storageBucket: "grpcproto-f09a8.appspot.com",
-  messagingSenderId: "789447821286",
-  appId: "1:789447821286:web:98176a763a4b7ec9a27827",
+  credential: admin.credential.cert(serviceAccount),
 };
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+admin.initializeApp(firebaseConfig);
+
+// Initialize Firestore
+const db = admin.firestore();
 
 const server = new Server();
+
 const packageDefinition = loadSync("./library.proto", {
   keepCase: true,
   longs: String,
@@ -41,14 +31,14 @@ const library = loadPackageDefinition(packageDefinition).library;
 
 const addBook = async (call, callback) => {
   const book = call.request.book;
-  const bookRef = doc(collection(db, "books"), book.id);
+  const bookRef = db.collection("books").doc(book.id);
   try {
-    await setDoc(bookRef, book);
-    const docSnapshot = await getDoc(bookRef);
+    await bookRef.set(book);
+    const docSnapshot = await bookRef.get();
     const data = docSnapshot.data();
     const response = {
       id: data.id,
-      name: data.name,
+      title: data.title,
       author: data.author,
     };
     callback(null, response);
@@ -60,14 +50,14 @@ const addBook = async (call, callback) => {
 
 const getBook = async (call, callback) => {
   const id = call.request.id;
-  const bookRef = doc(collection(db, "books"), id);
+  const bookRef = db.collection("books").doc(id);
   try {
-    const docSnapshot = await getDoc(bookRef);
-    if (docSnapshot.exists()) {
+    const docSnapshot = await bookRef.get();
+    if (docSnapshot.exists) {
       const data = docSnapshot.data();
       const response = {
         id: data.id,
-        name: data.name,
+        title: data.title,
         author: data.author,
       };
       callback(null, response);
@@ -83,12 +73,12 @@ const getBook = async (call, callback) => {
 
 const updateBook = async (call, callback) => {
   const book = call.request.book;
-  const bookRef = doc(collection(db, "books"), book.id);
+  const bookRef = db.collection("books").doc(book.id);
   try {
-    await updateDoc(bookRef, book);
+    await bookRef.update(book);
     const response = {
       id: book.id,
-      name: book.name,
+      title: book.title,
       author: book.author,
     };
     callback(null, response);
@@ -100,14 +90,19 @@ const updateBook = async (call, callback) => {
 
 const deleteBook = async (call, callback) => {
   const id = call.request.id;
-  const bookRef = doc(collection(db, "books"), id);
+  const bookRef = db.collection("books").doc(id);
   try {
-    await deleteDoc(bookRef);
-    const response = {
-      id: id,
-      message: `Book with id ${id} deleted successfully`,
-    };
-    callback(null, response);
+    const docSnapshot = await bookRef.get();
+    if (docSnapshot.exists) {
+      const data = docSnapshot.data();
+      await bookRef.delete();
+      const response = {
+        id: data.id,
+        title: data.title,
+        author: data.author,
+      };
+      callback(null, response);
+    }
   } catch (error) {
     console.log("Error deleting book: ", error);
     callback(error);
@@ -115,10 +110,10 @@ const deleteBook = async (call, callback) => {
 };
 
 server.addService(library.LibraryService.service, {
-  AddBook: addBook,
-  GetBook: getBook,
-  UpdateBook: updateBook,
-  DeleteBook: deleteBook,
+  addBook: addBook,
+  getBook: getBook,
+  updateBook: updateBook,
+  deleteBook: deleteBook,
 });
 
 server.bindAsync("localhost:50051", ServerCredentials.createInsecure(), () => {

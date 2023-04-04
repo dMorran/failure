@@ -17,13 +17,25 @@ const readline = createInterface({
   output: process.stdout,
 });
 
+// create dummy book data
+const dummyBook = {
+  id: "123",
+  title: "Dummy Book",
+  author: "Dummy Author",
+};
+
+// // add dummy book data to the library
+// client.AddBook({ book: dummyBook }, (err, response) => {
+//   console.log("Dummy book added successfully: ", response);
+// });
+
 const addBook = () => {
   readline.question("Enter book ID: ", (id) => {
-    readline.question("Enter book name: ", (name) => {
+    readline.question("Enter book name: ", (title) => {
       readline.question("Enter book author: ", (author) => {
         const book = {
           id: id,
-          name: name,
+          title: title,
           author: author,
         };
         client.AddBook({ book: book }, (err, response) => {
@@ -46,11 +58,11 @@ const getBook = () => {
 
 const updateBook = () => {
   readline.question("Enter book ID: ", (id) => {
-    readline.question("Enter updated book name: ", (name) => {
+    readline.question("Enter updated book name: ", (title) => {
       readline.question("Enter updated book author: ", (author) => {
         const book = {
           id: id,
-          name: name,
+          title: title,
           author: author,
         };
         client.UpdateBook({ book: book }, (err, response) => {
