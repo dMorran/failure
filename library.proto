@@ -12,6 +12,8 @@ message AddBookRequest {
   Book book = 1;
 }
 
+message Empty {}
+
 message GetBookRequest {
   string id = 1;
 }
@@ -24,8 +26,13 @@ message DeleteBookRequest {
   string id = 1;
 }
 
+message BookList {
+repeated Book books = 1;
+}
+
 service LibraryService {
   rpc AddBook (AddBookRequest) returns (Book) {}
+  rpc GetAllBooks (Empty) returns (BookList) {}
   rpc GetBook (GetBookRequest) returns (Book) {}
   rpc UpdateBook (UpdateBookRequest) returns (Book) {}
   rpc DeleteBook (DeleteBookRequest) returns (Book) {}

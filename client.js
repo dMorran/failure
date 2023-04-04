@@ -31,7 +31,7 @@ const dummyBook = {
 
 const addBook = () => {
   readline.question("Enter book ID: ", (id) => {
-    readline.question("Enter book name: ", (title) => {
+    readline.question("Enter book title: ", (title) => {
       readline.question("Enter book author: ", (author) => {
         const book = {
           id: id,
@@ -58,7 +58,7 @@ const getBook = () => {
 
 const updateBook = () => {
   readline.question("Enter book ID: ", (id) => {
-    readline.question("Enter updated book name: ", (title) => {
+    readline.question("Enter updated book title: ", (title) => {
       readline.question("Enter updated book author: ", (author) => {
         const book = {
           id: id,
@@ -82,10 +82,20 @@ const deleteBook = () => {
     });
   });
 };
+const getAllBooks = () => {
+  client.getAllBooks({}, (err, response) => {
+    if (err) {
+      console.error("Error getting all books: ", err);
+      return;
+    }
+    console.log("All books retrieved successfully: ", response.books);
+    readline.close();
+  });
+};
 
 const main = () => {
   readline.question(
-    "Select operation: add, get, update, delete: ",
+    "Select operation: add, get, update, delete, getAll: ",
     (operation) => {
       switch (operation) {
         case "add":
@@ -99,6 +109,9 @@ const main = () => {
           break;
         case "delete":
           deleteBook();
+          break;
+        case "getAll":
+          getAllBooks();
           break;
         default:
           console.log("Invalid operation");

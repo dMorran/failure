@@ -71,6 +71,27 @@ const getBook = async (call, callback) => {
   }
 };
 
+const getAllBooks = async (call, callback) => {
+  const booksRef = db.collection("books");
+  try {
+    const querySnapshot = await booksRef.get();
+    const books = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const book = {
+        id: doc.id, // gunakan id dokumen sebagai id buku
+        title: data.title,
+        author: data.author,
+      };
+      books.push(book);
+    });
+    callback(null, { books: books });
+  } catch (error) {
+    console.log("Error getting all books: ", error);
+    callback(error);
+  }
+};
+
 const updateBook = async (call, callback) => {
   const book = call.request.book;
   const bookRef = db.collection("books").doc(book.id);
@@ -114,6 +135,7 @@ server.addService(library.LibraryService.service, {
   getBook: getBook,
   updateBook: updateBook,
   deleteBook: deleteBook,
+  GetAllBooks: getAllBooks,
 });
 
 server.bindAsync("localhost:50051", ServerCredentials.createInsecure(), () => {
