@@ -7,9 +7,9 @@
 1. Library Proto
    Untuk mendefinsikan protolkol komunikasi
 2. Client.js
-   Berfungsi menerima input user dari terminal dengan readline. Dimana menggunakan/disesuaikan dengan protokol yang sudah di atur pada library.proto
+   Berfungsi menerima input user dari terminal dengan readline. Dimana menggunakan/disesuaikan dengan protokol yang sudah di atur pada `library.proto`
 3. Server.js
-   Befungsi sebagai penghubung antara client dengan database firebase dengan firebase-admin dan grPc server. data yang didapat dari client akan di push ke firebase database.
+   Befungsi sebagai penghubung antara client dengan database firebase dengan `firebase-admin` dan `grPc server`. data yang didapat dari client akan di push ke firebase database.
 4. ServiceAccountKey.json
    Berfungsi sebagai key untuk menghubungkan dengan firebase console
 
