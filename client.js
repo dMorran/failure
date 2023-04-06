@@ -95,7 +95,7 @@ const getAllBooks = () => {
 
 const main = () => {
   readline.question(
-    "Select operation: add, get, update, delete, getAll: ",
+    "Selamat datang di perpustakaan dalam terminal \n Apa yang bisa saya bantu? \n add, get, update, delete, getAll: \n",
     (operation) => {
       switch (operation) {
         case "add":
